@@ -1,10 +1,10 @@
 # 🍺 brewbar
 
-A progress bar for Python that **brews beer while your code runs**.
+A progress bar for Python that **brews beer while your code runs**
 
-No configuration.  
-No dependencies.  
-Just beer.
+No configuration 
+No dependencies
+Just beer
 
 ---
 
