@@ -33,6 +33,8 @@ class BrewBar:
         elapsed=False,
         rate=False,
         ascii=False,
+        disable=False,
+        file=None,
     ):
         self.iterable = iterable
         self.width = width
@@ -40,6 +42,8 @@ class BrewBar:
         self.elapsed_enabled = elapsed
         self.rate_enabled = rate
         self.ascii = ascii
+        self.disable = disable
+        self.file = file or sys.stdout
 
         self.start_time = None
         self._last_len = 0
@@ -50,6 +54,10 @@ class BrewBar:
             self.total = None
 
     def __iter__(self):
+        if self.disable:
+            yield from self.iterable
+            return
+
         if self.total == 0:
             return iter(())
 
@@ -60,11 +68,11 @@ class BrewBar:
 
         if self.total is not None:
             self._render(self.total)
-            sys.stdout.write("\n")
-            sys.stdout.flush()
+            self.file.write("\n")
+            self.file.flush()
 
     def _render(self, current):
-        if self.total is None:
+        if self.total is None or self.disable:
             return
 
         now = time.monotonic()
@@ -111,8 +119,8 @@ class BrewBar:
         line = "  |  ".join(parts)
 
         padding = max(0, self._last_len - len(line))
-        sys.stdout.write("\r" + line + (" " * padding))
-        sys.stdout.flush()
+        self.file.write("\r" + line + (" " * padding))
+        self.file.flush()
 
         self._last_len = len(line)
 
@@ -125,6 +133,8 @@ def bar(
     elapsed=False,
     rate=False,
     ascii=False,
+    disable=False,
+    file=None,
 ):
     return BrewBar(
         iterable,
@@ -133,4 +143,6 @@ def bar(
         elapsed=elapsed,
         rate=rate,
         ascii=ascii,
+        disable=disable,
+        file=file,
     )

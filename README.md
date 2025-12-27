@@ -19,6 +19,7 @@ for _ in bar(range(50)):
 ```
 🍺🍺🍺🍺░░░░  50%  fermenting
 ```
+![brewbar demo](images/demo.png)
 
 As progress increases, the beer fills and the brew stage changes:
 
@@ -36,6 +37,7 @@ pip install brewbar
 ## 🍺 Usage
 ```python
 from brewbar import bar
+import time
 
 for _ in bar(range(100)):
     time.sleep(0.1)
@@ -63,7 +65,7 @@ Because sometimes you don't want:
 You just want to know when your code is done…  
 and have a beer while waiting. 🍻
 
-## ⏱ Timing Metrics (v1.0.0)
+## ⏱ Timing Metrics (v1.1.0)
 
 brewbar can optionally show:
 
@@ -71,16 +73,19 @@ brewbar can optionally show:
 - Elapsed runtime
 - Processing speed (items/sec)
 - ASCII fallback for CI / logs
+- Disable output entirely (`disable=True`)
+- Write to a different stream (`file=sys.stderr`)
 
 ```python
 from brewbar import bar
+import time
 
 for _ in bar(
     range(200),
     eta=True,
     elapsed=True,
     rate=True,
-    ascii=True
+    ascii=True,
 ):
-    work()
+    time.sleep(0.05)
 ```
