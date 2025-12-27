@@ -4,13 +4,13 @@ from brewbar import bar
 
 
 def test_default():
-    print("\n--- Test: default (ETA only) ---")
+    print("\n--- default (ETA only) ---")
     for _ in bar(range(20)):
         time.sleep(0.1)
 
 
 def test_elapsed_and_rate():
-    print("\n--- Test: elapsed + rate ---")
+    print("\n--- elapsed + rate ---")
     for _ in bar(
         range(20),
         elapsed=True,
@@ -20,7 +20,7 @@ def test_elapsed_and_rate():
 
 
 def test_ascii_mode():
-    print("\n--- Test: ASCII mode ---")
+    print("\n--- ASCII mode ---")
     for _ in bar(
         range(20),
         elapsed=True,
@@ -31,7 +31,7 @@ def test_ascii_mode():
 
 
 def test_fast_loop():
-    print("\n--- Test: fast loop (no sleep) ---")
+    print("\n--- fast loop (no sleep) ---")
     for _ in bar(
         range(500),
         rate=True,
@@ -40,7 +40,7 @@ def test_fast_loop():
 
 
 def test_single_item():
-    print("\n--- Test: single-item iterable ---")
+    print("\n--- single-item iterable ---")
     for _ in bar(
         range(1),
         elapsed=True,
@@ -50,21 +50,19 @@ def test_single_item():
 
 
 def test_empty_iterable():
-    print("\n--- Test: empty iterable ---")
+    print("\n--- empty iterable ---")
     for _ in bar(range(0)):
         pass
-    print("(no output expected)")
 
 
 def test_disable():
-    print("\n--- Test: disable=True ---")
+    print("\n--- disable=True ---")
     for _ in bar(range(20), disable=True):
         time.sleep(0.05)
-    print("(no bar should have been printed)")
 
 
 def test_stderr():
-    print("\n--- Test: output to stderr ---")
+    print("\n--- output to stderr ---")
     for _ in bar(range(20), rate=True, file=sys.stderr):
         time.sleep(0.05)
 
@@ -78,5 +76,3 @@ if __name__ == "__main__":
     test_empty_iterable()
     test_disable()
     test_stderr()
-
-    print("\n🍺 All brewbar tests completed.\n")
