@@ -65,7 +65,7 @@ Because sometimes you don't want:
 You just want to know when your code is done…  
 and have a beer while waiting. 🍻
 
-## ⏱ Timing Metrics (v1.1.0)
+## ⏱ Timing Metrics (v1.1.2)
 
 brewbar can optionally show:
 
