@@ -19,7 +19,7 @@ for _ in bar(range(50)):
 ```
 🍺🍺🍺🍺░░░░  50%  fermenting
 ```
-![brewbar demo](images/demo.png)
+![brewbar demo](https://raw.githubusercontent.com/Harish-SN/brewbar/main/images/demo.png)
 
 As progress increases, the beer fills and the brew stage changes:
 
