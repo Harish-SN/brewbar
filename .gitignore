@@ -1,24 +1,75 @@
 # macOS
 .DS_Store
+.AppleDouble
+.LSOverride
 
-# Python cache
+# Python cache / bytecode
 __pycache__/
 *.py[cod]
+*$py.class
 
-# Build artifacts
-dist/
+# Distribution / packaging
 build/
+dist/
+.eggs/
 *.egg-info/
+*.egg
+MANIFEST
 
 # Virtual environments
 .venv/
 venv/
 env/
+ENV/
+.env/
+.venv*/
+pip-wheel-metadata/
 
-# Test / coverage
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
 .coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+pytestdebug.log
 .pytest_cache/
 
-# IDE / editor
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDE / editor settings
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# Local development
+.envrc
+*.log
+
+# mypy / type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# pyenv
+.python-version
+
+# pyright
+pyrightconfig.json
+
+# Poetry
+.poetry/
+
+# Pycharm
+*.iml
+
+# Ruff
+.ruff_cache/
