@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "brewbar"
-version = "1.2.0"
+version = "1.2.1"
 description = "A progress bar for Python that brews beer while your code runs"
 readme = "README.md"
 requires-python = ">=3.8"
