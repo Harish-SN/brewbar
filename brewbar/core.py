@@ -196,7 +196,7 @@ class BrewBar:
             text = text[: term_width - len(indent) - 2]
 
             if self.color:
-                text = f"\033[93m{text}\033[0m"
+                text = f"\033[91m{text}\033[0m"
 
             self._write(indent + text)
 
