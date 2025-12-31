@@ -51,7 +51,7 @@ for _ in bar(range(100)):
 - 🖥 Works in standard terminals
 - 🎭 Meme-friendly, screenshot-ready
 
-## What’s new in v1.2.0
+## What’s new in v1.2.1
 ### ETA & Speed
 ```
 ETA 00:08  |  12.5 it/s
