@@ -51,6 +51,57 @@ for _ in bar(range(100)):
 - 🖥 Works in standard terminals
 - 🎭 Meme-friendly, screenshot-ready
 
+## What’s new in v1.2.0
+### ETA & Speed
+```
+ETA 00:08  |  12.5 it/s
+```
+### ASCII mode (CI-safe)
+```python
+bar(range(100), ascii=True)
+```
+```
+Output:
+    ##########  100%  cheers 🍻
+```
+### Disable output completely
+```python
+bar(range(100), disable=True)
+```
+### Log to stderr
+```python
+bar(range(100), file=sys.stderr)
+```
+### Manual update mode
+For non-iterable workflows:
+```python
+from brewbar import BrewBar
+import time
+
+with BrewBar(total=10, elapsed=True, rate=True) as b:
+    for _ in range(10):
+        time.sleep(0.2)
+        b.update()
+```
+### Unknown total = spinner mode
+```python
+for _ in bar(iter(int, 1)):
+    time.sleep(0.05)
+```
+```
+Displays:
+    ⠙ brewing...
+```
+### Nested progress bars
+```python
+for _ in bar(range(3), elapsed=True):
+    for _ in bar(range(10), rate=True):
+        ...
+```
+### Beer-color mode
+```python
+bar(range(50), color=True)
+```
 ## 🛠 Requirements
 
 - Python 3.8+
@@ -58,23 +109,14 @@ for _ in bar(range(100)):
 ## ❓ Why brewbar?
 
 Because sometimes you don't want:
-- 20 configuration options
-- nested progress bars
-- noisy output
+- ❌ giant APIs
+- ❌ heavy deps
+- ❌ walls of logs
 
 You just want to know when your code is done…  
 and have a beer while waiting. 🍻
 
-## ⏱ Timing Metrics (v1.1.2)
-
-brewbar can optionally show:
-
-- ETA (estimated time remaining)
-- Elapsed runtime
-- Processing speed (items/sec)
-- ASCII fallback for CI / logs
-- Disable output entirely (`disable=True`)
-- Write to a different stream (`file=sys.stderr`)
+## Example with timing options
 
 ```python
 from brewbar import bar
