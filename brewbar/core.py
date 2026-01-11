@@ -8,10 +8,17 @@ STAGES = [
     "boiling",
     "fermenting",
     "conditioning",
-    "cheers 🍻"
+    "cheers 🍻",
 ]
 
 SPINNER = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+
+COLORS = {
+    "red": "\033[91m",
+    "green": "\033[92m",
+    "yellow": "\033[93m",
+    "blue": "\033[94m",
+}
 
 
 def _fmt_time(seconds: float) -> str:
@@ -43,15 +50,25 @@ class BrewBar:
         ascii=False,
         disable=False,
         file=None,
-        color=False,
-        refresh=1/20,  # 20fps max
+        color=None,
+        refresh=1 / 20,  # max 20fps
     ):
         self.file = file or sys.stdout
         self.iterable = iterable
-        self.disable = disable
         self.ascii = ascii
-        self.color = color
         self.refresh = refresh
+
+        # --- auto-disable for non-TTY (CI / logs safe) ---
+        if hasattr(self.file, "isatty") and not self.file.isatty():
+            self.disable = True
+        else:
+            self.disable = disable
+
+        # --- color handling ---
+        if color is True:
+            self.color = "yellow"
+        else:
+            self.color = color
 
         self.width = width
         self.eta_enabled = eta
@@ -78,7 +95,7 @@ class BrewBar:
 
         self.current = 0
 
-    # -------- Context Manager -------- #
+    # ---------- Context Manager ---------- #
 
     def __enter__(self):
         BrewBar._active_bars += 1
@@ -87,7 +104,7 @@ class BrewBar:
     def __exit__(self, *_):
         self.close()
 
-    # -------- Manual Mode -------- #
+    # ---------- Manual Mode ---------- #
 
     def update(self, n=1):
         if self.disable:
@@ -107,7 +124,7 @@ class BrewBar:
 
         BrewBar._active_bars = max(0, BrewBar._active_bars - 1)
 
-    # -------- Iterator API -------- #
+    # ---------- Iterator API ---------- #
 
     def __iter__(self):
         if self.disable:
@@ -126,12 +143,11 @@ class BrewBar:
 
         self.close()
 
-    # -------- Core Rendering -------- #
+    # ---------- Rendering ---------- #
 
     def _render(self, final=False):
         now = time.monotonic()
 
-        # refresh throttle
         if not final and (now - self.last_render) < self.refresh:
             return
 
@@ -141,18 +157,16 @@ class BrewBar:
             self.start_time = now
 
         with BrewBar._lock:
-
             indent = "  " * self.level
 
-            # Unknown length → spinner mode
+            # spinner mode (unknown total)
             if self.total is None:
                 frame = SPINNER[self._spinner_index % len(SPINNER)]
                 self._spinner_index += 1
-                line = f"{indent}{frame} brewing..."
-                self._write(line)
+                self._write(f"{indent}{frame} brewing...")
                 return
 
-            percent = min(1, self.current / self.total)
+            percent = min(1.0, self.current / self.total)
             filled = int(self.width * percent)
             empty = self.width - filled
 
@@ -181,24 +195,22 @@ class BrewBar:
             if self.rate_enabled and smooth_rate > 0:
                 parts.append(f"{smooth_rate:.1f} it/s")
 
-            if (
-                self.eta_enabled
-                and smooth_rate > 0
-                and self.current < self.total
-            ):
+            if self.eta_enabled and smooth_rate > 0 and self.current < self.total:
                 remaining = (self.total - self.current) / smooth_rate
                 parts.append(f"ETA {_fmt_time(remaining)}")
 
             text = "  |  ".join(parts)
 
-            # auto clamp to terminal width
+            # clamp to terminal width
             term_width = shutil.get_terminal_size((80, 20)).columns
-            text = text[: term_width - len(indent) - 2]
+            text = text[: max(20, term_width - len(indent) - 2)]
 
-            if self.color:
-                text = f"\033[91m{text}\033[0m"
+            if self.color in COLORS:
+                text = f"{COLORS[self.color]}{text}\033[0m"
 
             self._write(indent + text)
+
+    # ---------- Writer ---------- #
 
     def _write(self, line):
         padding = max(0, self._last_len - len(line))

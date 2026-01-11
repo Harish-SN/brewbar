@@ -2,7 +2,7 @@
 
 A progress bar for Python that **brews beer while your code runs**
 
-No configuration | No dependencies | Just beer
+No configuration | No dependencies | CI-safe | Just beer
 
 ---
 
@@ -49,9 +49,9 @@ for _ in bar(range(100)):
 - 🧠 Simple API (`bar(iterable)`)
 - ⚡ Lightweight (no dependencies)
 - 🖥 Works in standard terminals
-- 🎭 Meme-friendly, screenshot-ready
+- 🤖 Auto-disables in CI / non-TTY environments
 
-## What’s new in v1.2.1
+## What’s new in v1.2.2
 ### ETA & Speed
 ```
 ETA 00:08  |  12.5 it/s
@@ -98,9 +98,16 @@ for _ in bar(range(3), elapsed=True):
     for _ in bar(range(10), rate=True):
         ...
 ```
-### Beer-color mode
+### Beer-color mode 🎨
 ```python
+# default beer color (yellow)
 bar(range(50), color=True)
+
+# explicit colors
+bar(range(50), color="red")
+bar(range(50), color="green")
+bar(range(50), color="blue")
+bar(range(50), color="yellow")
 ```
 ## 🛠 Requirements
 

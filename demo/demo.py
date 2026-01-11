@@ -16,7 +16,7 @@ def test_elapsed_and_rate():
 
 
 def test_ascii_mode():
-    print("\n--- ASCII mode ---")
+    print("\n--- ASCII mode (CI-safe) ---")
     for _ in bar(range(20), elapsed=True, rate=True, ascii=True):
         time.sleep(0.1)
 
@@ -81,9 +81,24 @@ def test_nested_bars():
 
 
 def test_color_mode():
-    print("\n--- color mode ---")
+    print("\n--- color mode (default beer color) ---")
     for _ in bar(range(20), elapsed=True, color=True):
         time.sleep(0.08)
+
+
+def test_color_variants():
+    print("\n--- color variants ---")
+    for color in ("red", "green", "blue", "yellow"):
+        print(f"\ncolor={color}")
+        for _ in bar(range(10), color=color):
+            time.sleep(0.05)
+
+
+def test_ci_safe():
+    print("\n--- CI-safe / non-TTY simulation ---")
+    disable = not sys.stdout.isatty()
+    for _ in bar(range(10), ascii=True, disable=disable):
+        time.sleep(0.05)
 
 
 if __name__ == "__main__":
@@ -99,5 +114,7 @@ if __name__ == "__main__":
     test_unknown_total()
     test_nested_bars()
     test_color_mode()
+    test_color_variants()
+    test_ci_safe()
 
     print("\n🍺 All brewbar tests completed.\n")
