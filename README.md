@@ -1,9 +1,20 @@
-# brewbar
+# 🍺 brewbar
 
-**A serious progress bar for Python.** Drop-in compatible with the tqdm API, with extras tqdm doesn't have.
+**A serious progress bar for Python — with beer.** Drop-in compatible with the tqdm API, with extras tqdm doesn't have. Beer-themed by default; turn it off with `brew=False` if you need plain blocks.
 
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+---
+
+## The look
+
+```
+Working: 100% |🍺🍺🍺🍺🍺🍺🍺🍺🍺🍺🍺🍺🍺🍺🍺🍺🍺🍺🍺🍺🍺| 50/50 [00:00<00:00, 839.06it/s] cheers 🍻
+Half:     50% |🍺🍺🍺🍺🍺🍺🍺🍺🍺🍺··········| 50/100 [00:00<00:00, 18.9it/s] fermenting
+```
+
+The bar walks through brew stages as it fills: **mashing → boiling → fermenting → conditioning → cheers 🍻**. Want clean Unicode blocks instead? `bar(..., brew=False)`.
 
 ---
 
@@ -257,7 +268,7 @@ All tqdm-compatible kwargs:
 
 brewbar extras:
 
-`auto_color`, `show_memory`, `show_cpu`, `show_sparkline`, `sparkline_width`, `eta_confidence`, `eta_budget`, `on_update`, `on_complete`, `on_interval`, `track_metrics`
+`brew` (default True — 🍺 fill glyphs and brew stage labels), `show_stage`, `auto_color`, `show_memory`, `show_cpu`, `show_sparkline`, `sparkline_width`, `eta_confidence`, `eta_budget`, `on_update`, `on_complete`, `on_interval`, `track_metrics`
 
 ### Methods
 

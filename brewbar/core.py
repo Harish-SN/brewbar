@@ -64,6 +64,24 @@ SPINNER_ASCII = "|/-\\"
 # Sparkline glyphs for rate-trend display.
 SPARK = "▁▂▃▄▅▆▇█"
 
+# 🍺 Brewing theme — the soul of brewbar.
+# Beer glyph used to fill the bar in brew mode; empty cell is a faded mug.
+BEER_FULL = "🍺"
+BEER_EMPTY = "·"
+
+# Brew stages — the bar walks through these as progress advances.
+BREW_STAGES = (
+    "mashing",
+    "boiling",
+    "fermenting",
+    "conditioning",
+    "cheers 🍻",
+)
+
+# Spinner frames for unknown-total brew mode.
+BREW_SPINNER = ("🍺", "🍻", "🍺", "🍻")
+
+
 COLORS = {
     "black": "\033[30m",
     "red": "\033[31m",
@@ -165,7 +183,11 @@ def _fmt_rate(rate: float, unit: str = "it", unit_scale: bool = False, divisor: 
 
 
 def _visible_len(text: str) -> int:
-    """Strip ANSI escapes and return display length."""
+    """Strip ANSI escapes and return display column width.
+
+    Treats the beer emoji as 2 columns wide (matches typical terminal
+    rendering). Everything else counts as 1.
+    """
     out = 0
     i = 0
     while i < len(text):
@@ -175,9 +197,10 @@ def _visible_len(text: str) -> int:
             while i < len(text) and text[i] not in "@ABCDEFGHIJKLMNOPQRSTUVWXYZ`abcdefghijklmnopqrstuvwxyz~":
                 i += 1
             i += 1
+        elif c == BEER_FULL or c == "🍻":
+            out += 2
+            i += 1
         else:
-            # Treat all printable chars as 1 column. We avoid emoji
-            # since this is a serious tool with predictable widths.
             out += 1
             i += 1
     return out
@@ -285,6 +308,9 @@ class BrewBar:
         on_interval: Optional[Tuple[float, Callable[["BrewBar"], None]]] = None,
         track_metrics: Optional[List[str]] = None,
         write_safe: bool = True,
+        # --- 🍺 brewing theme ---
+        brew: bool = True,             # use 🍺 fill glyph + brew stage labels
+        show_stage: Optional[bool] = None,  # show "mashing/boiling/..." label; defaults to brew
     ):
         # --- iterable / total ---
         self.iterable = iterable
@@ -356,6 +382,13 @@ class BrewBar:
         self._last_interval_call = 0.0
         self.track_metrics = list(track_metrics) if track_metrics else []
         self._metric_history: Dict[str, Dict[str, float]] = {}
+
+        # --- 🍺 brew theme ---
+        # If user passed `ascii`, force off the brew glyphs (CI / log-safe).
+        # If user passed an explicit `bar_format` with their own {bar}, we
+        # still use brew glyphs inside it (they own layout, we own glyph).
+        self.brew = bool(brew) and self.ascii_chars is None
+        self.show_stage = self.brew if show_stage is None else bool(show_stage)
 
         # --- disable detection ---
         if disable is None:
@@ -787,6 +820,15 @@ class BrewBar:
     def _render_bar(self, percent: float, width: int) -> str:
         if width <= 0:
             return ""
+
+        # 🍺 brew mode: each cell is one emoji wide visually but ~1 char in
+        # our render budget. Use chunky beer glyphs, no sub-cell precision.
+        if self.brew:
+            filled = int(round(percent * width))
+            filled = max(0, min(width, filled))
+            empty = width - filled
+            return BEER_FULL * filled + BEER_EMPTY * empty
+
         if self.ascii_chars is not None:
             charset = self.ascii_chars
         else:
@@ -900,6 +942,16 @@ class BrewBar:
         else:
             remaining_conf_fmt = remaining_fmt
 
+        # 🍺 Brew stage label (mashing → boiling → ... → cheers 🍻)
+        if self.total and self.total > 0:
+            stage_idx = min(
+                int((self.n / self.total) * len(BREW_STAGES)),
+                len(BREW_STAGES) - 1,
+            )
+            stage = BREW_STAGES[stage_idx]
+        else:
+            stage = "brewing"
+
         return {
             "n": int(self.n),
             "n_fmt": n_fmt,
@@ -922,6 +974,7 @@ class BrewBar:
             "memory": mem_fmt,
             "cpu": cpu_fmt,
             "sparkline": spark,
+            "stage": stage,
             "bar": "",  # filled below once width is known
         }
 
@@ -930,17 +983,23 @@ class BrewBar:
 
         # Spinner mode: unknown total.
         if self.total is None:
-            frames = SPINNER_ASCII if self.ascii_chars is not None else SPINNER_UNICODE
-            frame = "✓" if (final and self.ascii_chars is None) else (
-                "+" if final else frames[self._spinner_index % len(frames)]
-            )
+            if self.brew:
+                # 🍺 brew spinner alternates beer mugs
+                frame = "🍻" if final else BREW_SPINNER[self._spinner_index % len(BREW_SPINNER)]
+            else:
+                frames = SPINNER_ASCII if self.ascii_chars is not None else SPINNER_UNICODE
+                frame = "✓" if (final and self.ascii_chars is None) else (
+                    "+" if final else frames[self._spinner_index % len(frames)]
+                )
             if not final:
                 self._spinner_index += 1
-            parts = [
-                f"{frame} {fd['n_fmt']}{self.unit}",
-                fd["elapsed_fmt"],
-                fd["rate_fmt"],
-            ]
+
+            head = f"{frame} brewing..." if self.brew else f"{frame} {fd['n_fmt']}{self.unit}"
+            parts = [head]
+            if self.brew:
+                parts.append(f"{fd['n_fmt']}{self.unit}")
+            parts.append(fd["elapsed_fmt"])
+            parts.append(fd["rate_fmt"])
             if self.show_memory:
                 parts.append(f"mem {fd['memory']}")
             if self.show_cpu:
@@ -961,6 +1020,9 @@ class BrewBar:
 
         suffix_parts = [f"{fd['n_fmt']}/{fd['total_fmt']}"]
         suffix_parts.append(f"[{fd['elapsed_fmt']}<{fd['remaining_conf_fmt']}, {fd['rate_fmt']}]")
+        # 🍺 brew stage label
+        if self.show_stage:
+            suffix_parts.append(fd["stage"])
         if self.show_memory:
             suffix_parts.append(f"mem={fd['memory']}")
         if self.show_cpu:
@@ -982,13 +1044,14 @@ class BrewBar:
                 # Fallback to default rendering if format string is malformed.
                 pass
 
-        # Fit bar in remaining space.
+        # Fit bar in remaining space. Beer glyphs are ~2 display cols each.
         indent = "  " * self.position
         term_w = self._term_width()
         used = len(indent) + _visible_len(prefix) + _visible_len(suffix) + 4  # spaces around bar
-        bar_width = max(3, term_w - used)
-        # Cap bar width sensibly so we don't get one-line-of-bar
-        bar_width = min(bar_width, 60)
+        col_per_cell = 2 if self.brew else 1
+        bar_width = max(3, (term_w - used) // col_per_cell)
+        # Cap bar width sensibly so we don't get an absurdly long bar
+        bar_width = min(bar_width, 30 if self.brew else 60)
         bar_str = self._render_bar(fd["percentage"] / 100, bar_width)
         return f"{prefix} |{bar_str}| {suffix}"
 
