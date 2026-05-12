@@ -1,5 +1,48 @@
-from .core import bar, BrewBar
+"""
+brewbar — a progress bar library for Python.
 
-__all__ = ["bar", "BrewBar"]
+A tqdm-compatible API with extra features: predictive ETA, memory/CPU
+monitoring, rate sparklines, pause/resume timing, hooks, metric tracking,
+auto-color, multi-bar groups, and logging integration.
 
-__version__ = "1.2.2"
+Quick start:
+
+    from brewbar import bar, trange
+    for x in bar(range(100), desc="Working"):
+        ...
+    for i in trange(100, desc="Loading"):
+        ...
+"""
+
+from .core import (
+    BrewBar,
+    BarGroup,
+    bar,
+    trange,
+    track,
+    write,
+    redirect_logging,
+)
+
+__all__ = [
+    "BrewBar",
+    "BarGroup",
+    "bar",
+    "trange",
+    "track",
+    "write",
+    "redirect_logging",
+]
+
+__version__ = "2.0.0"
+
+
+# tqdm-style auto submodule: `from brewbar.auto import bar`
+import sys as _sys
+import types as _types
+_auto = _types.ModuleType("brewbar.auto")
+_auto.bar = bar
+_auto.trange = trange
+_auto.BrewBar = BrewBar
+_auto.tqdm = BrewBar  # drop-in alias
+_sys.modules["brewbar.auto"] = _auto
